@@ -1,15 +1,32 @@
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
-public class SecurityDbContext : DbContext
+public class CustomAuthorizationAttribute : Attribute, IAuthorizationFilter
 {
-    public DbSet<UserRole> Security { get; set; }
+    private readonly string _role;
 
-    public SecurityDbContext(DbContextOptions<SecurityDbContext> options) : base(options) { }
-}
+    public CustomAuthorizationAttribute(string role)
+    {
+        _role = role;
+    }
 
-public class UserRole
-{
-    public int Id { get; set; }
-    public string UserName { get; set; }
-    public string Role { get; set; }
+    public void OnAuthorization(AuthorizationFilterContext context)
+    {
+        var userName = context.HttpContext.User.Identity?.Name;
+
+        if (string.IsNullOrEmpty(userName))
+        {
+            context.Result = new UnauthorizedResult();
+            return;
+        }
+
+        var dbContext = context.HttpContext.RequestServices.GetService<SecurityDbContext>();
+
+        var user = dbContext.Security.FirstOrDefault(u => u.UserName == userName);
+
+        if (user == null || user.Role != _role)
+        {
+            context.Result = new ForbidResult();
+        }
+    }
 }
