@@ -1,1 +1,1 @@
-Which security technique sends random unanticipated data to a web app to test its resilience?
+Your station is plugged into switch port 3. You run Wireshark to capture network traffic but can see only your station’s unicast traffic as well as multicast and broadcast traffic. You must capture all unicast traffic on the switch. What should you do?
