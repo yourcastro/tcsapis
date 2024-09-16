@@ -1,2 +1,10 @@
+Hi Team,
 
-We have created a new site in IIS (CreditRiskPortalApi - http://159.208.208.142:5000/) and deployed our services, it’s working fine. However, we are unable to use the default website 'https://dev-intranet-std.ca.sunlife/CreditRiskPortalApi/swagger/index.html' due to a 'redirected too many times' error.
+I hope everyone had a productive weekend. Could you please provide an update on the status of the tasks that were assigned for completion over the weekend?
+
+I'm particularly interested in:
+
+What progress has been made?
+Any blockers or challenges encountered?
+Estimated completion timelines for any remaining work.
+Please share your updates by [specify a deadline if necessary].
