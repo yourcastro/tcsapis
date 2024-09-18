@@ -1,1 +1,29 @@
-You would like to detect hosts on network 199.126.129.0 with a subnet mask of 255.255.255.0. You need to identify the operating system running on each detected host. Which command should you issue?
+export const HomefetchData = (data) => {
+  console.log('ActionData', data)
+  return async (dispatch, getState) => {
+    var myHeaders = new Headers();
+myHeaders.append("Content-Type", "application/json");
+ 
+var requestOptions = {
+  method: 'GET',
+  headers: myHeaders,
+  redirect: 'follow',
+  mode:'no-cors',
+  credentials: 'include', // Use this if you're sending cookies or need credentials,
+};
+ 
+fetch("https://159.208.208.142:5001/webservice/api/Home/GetAllWelcomePage", requestOptions)
+  .then(response => response.text())
+  .then(result => console.log('result',result))
+  .catch(error => console.log('error', error));
+ 
+ 
+    // dispatch(fetchDataRequest());
+    try {
+      //   const response = await axios.get('https://api.example.com/data');
+      // dispatch(fetchDataSuccess(response));
+    } catch (error) {
+      // dispatch(fetchDataFailure(error.message));
+    }
+  };
+};
