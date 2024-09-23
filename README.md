@@ -1,1 +1,31 @@
-WebForm1.aspx:1 Access to XMLHttpRequest at 'https://dev-intranet-std.ca.sunlife/CreditRiskPortalApi/api/AddEntity/GetAssetList' from origin 'http://localhost:3000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
+var builder = WebApplication.CreateBuilder(args);
+
+// Enable CORS to allow requests from localhost:3000
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins("http://localhost:3000")  // Replace with your React app's origin
+              .AllowAnyMethod()                      // Allows all HTTP methods (GET, POST, etc.)
+              .AllowAnyHeader()                      // Allows custom headers (e.g., Content-Type)
+              .AllowCredentials();                   // Allows credentials (cookies, authentication)
+    });
+});
+
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.PropertyNamingPolicy = null;
+});
+
+var app = builder.Build();
+
+// Use CORS with the configured policy
+app.UseCors("AllowSpecificOrigins");
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
+
