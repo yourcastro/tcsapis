@@ -1,12 +1,1 @@
-const stringValue = "Hello, .NET 8.0!";
-
-fetch('https://localhost:5001/api/mycontroller/post-string', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify(stringValue)  // String is sent as a JSON string
-})
-  .then(response => response.json())
-  .then(data => console.log(data))
-  .catch(error => console.error('Error:', error));
+WebForm1.aspx:1 Access to XMLHttpRequest at 'https://dev-intranet-std.ca.sunlife/CreditRiskPortalApi/api/AddEntity/GetAssetList' from origin 'http://localhost:3000' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header is present on the requested resource.
