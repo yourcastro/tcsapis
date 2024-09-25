@@ -1,31 +1,16 @@
-var builder = WebApplication.CreateBuilder(args);
+ public Task<int> UpdatePDScorecardSPDetails(CRInvPartyEntityScorecardFactors crInvPartyEntityScorecardFactors)
+ {
+     var result = 0;
 
-// Enable CORS to allow requests from localhost:3000
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins", policy =>
-    {
-        policy.WithOrigins("http://localhost:3000")  // Replace with your React app's origin
-              .AllowAnyMethod()                      // Allows all HTTP methods (GET, POST, etc.)
-              .AllowAnyHeader()                      // Allows custom headers (e.g., Content-Type)
-              .AllowCredentials();                   // Allows credentials (cookies, authentication)
-    });
-});
+     var parameters = new
+     {
+         @party_entity_scorecard_doc_id = crInvPartyEntityScorecardFactors.party_entity_scorecard_doc_id,
+         @party_entity_scorecard_factors_id = crInvPartyEntityScorecardFactors.party_entity_scorecard_factors_id
+     };
 
-builder.Services.AddControllers().AddJsonOptions(options =>
-{
-    options.JsonSerializerOptions.PropertyNamingPolicy = null;
-});
+     string sqlquery = "UPDATE [VRRPartyEntityDatastore].[dbo].[inv_party_entity_scorecard_factors_t] SET [party_entity_scorecard_doc_id] ={0} WHERE [party_entity_scorecard_factors_id]={1} ";
 
-var app = builder.Build();
+     result = _appDbContext.Database.ExecuteSqlRawAsync(sqlquery, parameters.party_entity_scorecard_doc_id, parameters.party_entity_scorecard_factors_id);
 
-// Use CORS with the configured policy
-app.UseCors("AllowSpecificOrigins");
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
-
+     return 0;
+ }
