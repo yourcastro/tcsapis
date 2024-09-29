@@ -64,3 +64,16 @@ export default ApiComponent;
   padding: 20px;
 }
 
+Subject: Request for Praveen to Work Remotely This Week
+
+Hi [Boss's Name],
+
+I hope this message finds you well. I would like to request that Praveen work from home for the entire week. He has a significant amount of API integration and functionality work to complete for the upcoming UAT release. His current travel schedule is causing some delays, and being able to focus without the commute would greatly enhance his productivity.
+
+Thank you for considering this request.
+
+Best regards,
+[Your Name]
+
+
+
