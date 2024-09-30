@@ -1,62 +1,45 @@
-import React, { Component } from 'react';
+using System;
+using System.Net;
+using System.Net.Http;
+using RestSharp;
 
-class LargeObjectExample extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      user: {
-        name: 'John',
-        age: 30,
-        address: {
-          city: 'New York',
-          zip: '10001',
-        },
-      },
-      settings: {
-        theme: 'light',
-        notifications: true,
-      },
-    };
-  }
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Define proxy settings
+        var proxy = new WebProxy("http://your-proxy-address:port")
+        {
+            Credentials = new NetworkCredential("username", "password") // If required
+        };
 
-  updateCity = (newCity) => {
-    this.setState((prevState) => ({
-      user: {
-        ...prevState.user,
-        address: {
-          ...prevState.user.address,
-          city: newCity,
-        },
-      },
-    }));
-  };
+        // Create an HttpClientHandler that uses the proxy
+        var handler = new HttpClientHandler()
+        {
+            Proxy = proxy,
+            UseProxy = true
+        };
 
-  updateTheme = (newTheme) => {
-    this.setState((prevState) => ({
-      settings: {
-        ...prevState.settings,
-        theme: newTheme,
-      },
-    }));
-  };
+        // Create a RestClient with custom HttpClient
+        var client = new RestClient(new RestClientOptions("https://api.example.com")
+        {
+            ConfigureHandler = httpClient => httpClient = new HttpClient(handler)
+        });
 
-  render() {
-    return (
-      <div>
-        <h1>{this.state.user.name}</h1>
-        <p>City: {this.state.user.address.city}</p>
-        <p>Theme: {this.state.settings.theme}</p>
-        <button onClick={() => this.updateCity('Los Angeles')}>Change City</button>
-        <button onClick={() => this.updateTheme('dark')}>Change Theme</button>
-      </div>
-    );
-  }
+        // Create a request
+        var request = new RestRequest("endpoint", Method.Get);
+
+        // Execute the request
+        var response = client.Execute(request);
+
+        // Check the response
+        if (response.IsSuccessful)
+        {
+            Console.WriteLine(response.Content);
+        }
+        else
+        {
+            Console.WriteLine($"Error: {response.StatusCode} - {response.ErrorMessage}");
+        }
+    }
 }
-
-export default LargeObjectExample;
-
-Immutability: Always create a new object when updating state to ensure React can optimize rendering.
-
-Spread Operator: Use the spread operator (...) to copy existing properties and only change the ones you need.
-
-Functional Updates: Using the functional form of setState (or setData) is crucial when the new state depends on the previous state.
