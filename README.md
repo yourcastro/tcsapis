@@ -54,3 +54,9 @@ class LargeObjectExample extends Component {
 }
 
 export default LargeObjectExample;
+
+Immutability: Always create a new object when updating state to ensure React can optimize rendering.
+
+Spread Operator: Use the spread operator (...) to copy existing properties and only change the ones you need.
+
+Functional Updates: Using the functional form of setState (or setData) is crucial when the new state depends on the previous state.
