@@ -1,1 +1,1 @@
-It’s working using the following proxy URL.  Just to get the confirmation, are we going to implement proxy approach or API Gateway URL. 
+It’s currently working using the following proxy URL. Could you please confirm whether we will proceed with the proxy approach or switch to using the API Gateway URL?
