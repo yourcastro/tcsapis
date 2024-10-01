@@ -1,1 +1,16 @@
-Currently, we have only a UI resource assigned to integrate all APIs. Due to time constraints, thorough testing was not completed, which has affected the quality of the integration. Moving forward, we need to focus on improving the overall quality of work and ensuring that team members take full ownership of their responsibilities, including proper testing and validation.
+using (var context = new YourDbContext())
+{
+    var outParameter = new SqlParameter
+    {
+        ParameterName = "@OutParam",
+        SqlDbType = SqlDbType.Int, // or the appropriate type
+        Direction = ParameterDirection.Output
+    };
+
+    var result = context.Database.ExecuteSqlRaw("EXEC YourStoredProcedure @OutParam OUTPUT", outParameter);
+
+    // Retrieve the value of the OUT parameter
+    int outValue = (int)outParameter.Value;
+
+    Console.WriteLine($"The OUT parameter value is: {outValue}");
+}
