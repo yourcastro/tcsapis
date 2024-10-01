@@ -1,1 +1,1 @@
-It’s currently working using the following proxy URL. Could you please confirm whether we will proceed with the proxy approach or switch to using the API Gateway URL?
+We have been facing an SharePoint environment issue after deployed to dev server because of that PD Scorecard integrations has been affected, now we are changing our code to fix those issues and we have found some blocker issues during our internal testing, we are fixing those issues as well. 
