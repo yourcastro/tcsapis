@@ -92,5 +92,5 @@ export default GridWithPagination;
 
 
 
- What is your expectation from him? Based on the current situation, we need some good developers to support our project.
+What are your expectations from him? I have shared the background and current status of the project. Given the situation, we need skilled developers to support our project.
 
