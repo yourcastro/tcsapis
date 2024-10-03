@@ -1,102 +1,41 @@
-import React, { useState } from "react";
-import { Container, Row, Col, Table, Pagination } from "react-bootstrap";
+using Microsoft.EntityFrameworkCore;
+using System.Data.Common;
 
-const GridWithPagination = () => {
-  // Example data (could be from API)
-  const data = Array.from({ length: 100 }, (_, index) => `Item ${index + 1}`);
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(data.length / itemsPerPage);
+// Assuming you have a DbContext instance (e.g., _context)
+var sql = "EXEC YourStoredProcedureName @param1, @param2"; // Adjust for your stored procedure and parameters
 
-  // Get current items for pagination
-  const currentData = data.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+using (var command = _context.Database.GetDbConnection().CreateCommand())
+{
+    command.CommandText = sql;
+    command.CommandType = System.Data.CommandType.Text;
 
-  // Pagination change handler
-  const handlePageChange = (pageNumber) => {
-    setCurrentPage(pageNumber);
-  };
+    // If you need to pass parameters to the stored procedure
+    var param1 = command.CreateParameter();
+    param1.ParameterName = "@param1";
+    param1.Value = param1Value; // Set your parameter value
+    command.Parameters.Add(param1);
 
-  return (
-    <Container>
-      {/* Grid Header */}
-      <Row className="my-3">
-        <Col>
-          <h3>Grid Header</h3>
-        </Col>
-      </Row>
+    var param2 = command.CreateParameter();
+    param2.ParameterName = "@param2";
+    param2.Value = param2Value; // Set your parameter value
+    command.Parameters.Add(param2);
 
-      {/* Grid Content */}
-      <Row>
-        <Col>
-          <Table striped bordered hover>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Item</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentData.map((item, index) => (
-                <tr key={index}>
-                  <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
-                  <td>{item}</td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        </Col>
-      </Row>
+    // Open connection if it’s not open
+    if (command.Connection.State != System.Data.ConnectionState.Open)
+    {
+        await command.Connection.OpenAsync();
+    }
 
-      {/* Pagination */}
-      <Row>
-        <Col>
-          <Pagination>
-            <Pagination.First
-              onClick={() => handlePageChange(1)}
-              disabled={currentPage === 1}
-            />
-            <Pagination.Prev
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            />
-            {[...Array(totalPages)].map((_, index) => (
-              <Pagination.Item
-                key={index}
-                active={index + 1 === currentPage}
-                onClick={() => handlePageChange(index + 1)}
-              >
-                {index + 1}
-              </Pagination.Item>
-            ))}
-            <Pagination.Next
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            />
-            <Pagination.Last
-              onClick={() => handlePageChange(totalPages)}
-              disabled={currentPage === totalPages}
-            />
-          </Pagination>
-        </Col>
-      </Row>
-    </Container>
-  );
-};
+    using (var reader = await command.ExecuteReaderAsync())
+    {
+        // Loop through the data rows
+        while (await reader.ReadAsync())
+        {
+            // Access the columns by index or name
+            var column1 = reader.GetString(0); // Assuming the first column is a string
+            var column2 = reader.GetInt32(1);  // Assuming the second column is an int
 
-export default GridWithPagination;
-
-SELECT 
-    name AS ProcedureName,
-    create_date AS CreationDate,
-    modify_date AS LastModifiedDate
-FROM sys.procedures
-WHERE name = 'YourStoredProcedureName';
-
-
-
-
+            Console.WriteLine($"Column1: {column1}, Column2: {column2}");
+        }
+    }
+}
