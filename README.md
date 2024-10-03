@@ -90,7 +90,13 @@ const GridWithPagination = () => {
 
 export default GridWithPagination;
 
-We expect him to guide the offshore team , as well as do design/development on his own.
+SELECT 
+    name AS ProcedureName,
+    create_date AS CreationDate,
+    modify_date AS LastModifiedDate
+FROM sys.procedures
+WHERE name = 'YourStoredProcedureName';
+
 
 
 
