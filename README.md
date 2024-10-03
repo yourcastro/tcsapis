@@ -90,6 +90,7 @@ const GridWithPagination = () => {
 
 export default GridWithPagination;
 
+We expect him to guide the offshore team , as well as do design/development on his own.
 
-What are your expectations from him? I have already shared the background of the project and the current situation. Without knowing his specific role, I am unable to provide feedback. 
+
 
