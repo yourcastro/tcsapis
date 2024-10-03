@@ -91,6 +91,5 @@ const GridWithPagination = () => {
 export default GridWithPagination;
 
 
-
-What are your expectations from him? I have shared the background and current status of the project. Given the situation, we need skilled developers to support our project.
+What are your expectations from him? I have already shared the background of the project and the current situation. Without knowing his specific role, I am unable to provide feedback. 
 
