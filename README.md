@@ -31,6 +31,4 @@ context.Database.ExecuteSqlRaw(strquery, outParameter);
 int totalRows = (int)outParameter.Value;
 
 
-
-
-I have an appointment on Oct 17th so I will be taking a leave.  I can be contacted through phone or TCS Teams.
+I have an appointment on October 17th and will be taking leave on that day. I can still be reached via phone or TCS Teams if needed.
