@@ -29,3 +29,8 @@ context.Database.ExecuteSqlRaw(strquery, outParameter);
 
 // Retrieve the output value
 int totalRows = (int)outParameter.Value;
+
+
+
+
+I have an appointment on Oct 17th so I will be taking a leave.  I can be contacted through phone or TCS Teams.
