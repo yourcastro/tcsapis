@@ -1,36 +1,26 @@
-using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Http.Json;
-using System.Threading.Tasks;
+import React, { useEffect } from 'react';
+import { useDispatch } from 'react-redux';
+import { fetchData } from './actions'; // Assume this is your action creator
 
-public class ApiClient
-{
-    private static readonly HttpClientHandler httpClientHandler = new HttpClientHandler
-    {
-        Credentials = CredentialCache.DefaultNetworkCredentials // Use default credentials
+const FetchDataComponent = () => {
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchDataInLoop = async () => {
+      const ids = [1, 2, 3, 4, 5]; // Example IDs to fetch
+
+      try {
+        // Dispatch API calls in parallel
+        await Promise.all(ids.map(id => dispatch(fetchData(id))));
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
     };
 
-    private static readonly HttpClient httpClient = new HttpClient(httpClientHandler);
+    fetchDataInLoop();
+  }, [dispatch]);
 
-    public async Task<string> PostDataAsync(string url, object data)
-    {
-        try
-        {
-            // Send a POST request with the JSON body
-            HttpResponseMessage response = await httpClient.PostAsJsonAsync(url, data);
+  return <div>Data is being fetched...</div>;
+};
 
-            // Ensure the response is successful
-            response.EnsureSuccessStatusCode();
-
-            // Read the response content as a string
-            var responseData = await response.Content.ReadAsStringAsync();
-            return responseData; // Return the response data
-        }
-        catch (HttpRequestException e)
-        {
-            Console.WriteLine("Error calling API: " + e.Message);
-            return null; // Or handle error as needed
-        }
-    }
-}
+export default FetchDataComponent;
