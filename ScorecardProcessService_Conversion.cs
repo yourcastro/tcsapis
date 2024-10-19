@@ -326,4 +326,153 @@ public string SaveScoreCardFileData(int EntityScorecardID, string FilePath, stri
 
 
 
+private string GetScoreCardXML(Excel.Workbook xlWorkBook, string TranslationTypeId, string TemplateName)
+{
+    string strXML = "";
+    DataSet ds = new DataSet();
+    DateTime dt;
+    object nameRange;
+    string result = "";
+    object worksheet;
+    sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(AppSettings.Get(CONFIG_APPNAME));
+
+    objArguments.TableNames = new string[1];
+    objArguments.FilterConditions = new string[1];
+    objArguments.dsData = ds;
+    objArguments.ConnectionDatabase = AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION);
+    objArguments.ConnectionUser = AppSettings.Get(CONFIG_DB_USER);
+    objArguments.ConnectionPwd = AppSettings.Get(CONFIG_DB_PWD);
+    objArguments.TableNames[0] = "Translation";
+    objArguments.FilterConditions[0] = "TranslationTypeId = '" + TranslationTypeId + "'";
+
+    objArguments.AuditConnectionDatabases = new string[1];
+    objArguments.AuditConnectionUsers = new string[1];
+    objArguments.AuditConnectionPwds = new string[1];
+    objArguments.AuditConnectionDatabases[0] = AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION);
+    objArguments.AuditConnectionUsers[0] = AppSettings.Get(CONFIG_DB_USER);
+    objArguments.AuditConnectionPwds[0] = AppSettings.Get(CONFIG_DB_PWD);
+
+    GetData(objArguments, CreateSessionId());
+
+    strXML = "<?xml version=\"1.0\" encoding=\"utf-8\"?>" + "\r\n";
+    strXML += "<PDScoreCord>" + "\r\n";
+    strXML += "<Data>" + "\r\n";
+
+    DataTable tb = ds.Tables[0];
+
+    if (TemplateName == "Public Finance")
+    {
+        for (int i = 0; i < tb.Rows.Count; i++)
+        {
+            worksheet = i <= 10 ? xlWorkBook.Sheets["Summary"] : xlWorkBook.Sheets["Template Assessment Sheet"];
+
+            if (IsCVErr(worksheet.Range(tb.Rows[i]["ValueOut1"].ToString()).Value))
+            {
+                strXML += "<" + tb.Rows[i]["ValueIn1"].ToString() + " value=\"\"/>" + "\r\n";
+            }
+            else
+            {
+                nameRange = worksheet.Range(tb.Rows[i]["ValueOut1"].ToString()).Value;
+
+                if (nameRange is double && nameRange.ToString().Contains("."))
+                {
+                    if (nameRange.ToString().Split('.')[1].Length > 15)
+                    {
+                        result = string.Format("{0:0.##############E+00}", nameRange);
+                        nameRange = result;
+                    }
+                }
+
+                if (nameRange is DateTime)
+                {
+                    dt = (DateTime)nameRange;
+                    nameRange = dt.ToShortDateString();
+                }
+
+                strXML += "<" + tb.Rows[i]["ValueIn1"].ToString() + " value=\"" + GetRangeValue(nameRange) + "\"/>" + "\r\n";
+            }
+        }
+    }
+    else
+    {
+        for (int i = 0; i < tb.Rows.Count; i++)
+        {
+            if (string.IsNullOrEmpty(tb.Rows[i]["ValueOut1"].ToString()))
+            {
+                strXML += "<" + tb.Rows[i]["ValueIn1"].ToString() + " value=\"\"/>" + "\r\n";
+            }
+            else if (RangeNameExists(xlWorkBook, tb.Rows[i]["ValueOut1"].ToString()))
+            {
+                if (IsCVErr(xlWorkBook.Names[tb.Rows[i]["ValueOut1"].ToString()].RefersToRange.Value))
+                {
+                    strXML += "<" + tb.Rows[i]["ValueIn1"].ToString() + " value=\"\"/>" + "\r\n";
+                }
+                else
+                {
+                    nameRange = xlWorkBook.Names[tb.Rows[i]["ValueOut1"].ToString()].RefersToRange.Value;
+
+                    if (nameRange is double && nameRange.ToString().Contains("."))
+                    {
+                        if (nameRange.ToString().Split('.')[1].Length > 15)
+                        {
+                            result = string.Format("{0:0.##############E+00}", nameRange);
+                            nameRange = result;
+                        }
+                    }
+
+                    if (nameRange is DateTime)
+                    {
+                        dt = (DateTime)nameRange;
+                        nameRange = dt.ToShortDateString();
+                    }
+
+                    strXML += "<" + tb.Rows[i]["ValueIn1"].ToString() + " value=\"" + GetRangeValue(nameRange) + "\"/>" + "\r\n";
+                }
+            }
+        }
+    }
+
+    strXML += "</Data>" + "\r\n";
+    strXML += "</PDScoreCord>" + "\r\n";
+    strXML = strXML.Replace("<populated from EDS>", "");
+
+    return strXML;
+}
+
+private string GetRangeValue(object r)
+{
+    if (r == null)
+    {
+        return "";
+    }
+
+    string myNumString = "";
+
+    if (r.GetType().IsArray)
+    {
+        Array arrayResult = (Array)r;
+        for (int i = 1; i <= arrayResult.Length; i++)
+        {
+            if (arrayResult.GetValue(1, i) != null)
+            {
+                myNumString = arrayResult.GetValue(1, i).ToString();
+            }
+        }
+    }
+    else
+    {
+        myNumString = r.ToString();
+    }
+
+    myNumString = myNumString.Replace("&", "&amp;");
+    myNumString = myNumString.Replace("<", "&lt;");
+    myNumString = myNumString.Replace(">", "&gt;");
+    myNumString = myNumString.Replace("\"", "&quot;");
+    myNumString = myNumString.Replace("'", "&apos;");
+
+    return myNumString;
+}
+
+
+
 
