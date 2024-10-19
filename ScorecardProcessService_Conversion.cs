@@ -221,3 +221,109 @@ public string GetUpdatedScoreCardFile(string filepath, string templatename, stri
 }
 
 
+
+public string SaveScoreCardFileData(int EntityScorecardID, string FilePath, string TemplateName, string userID)
+{
+    string xmlstring = "";
+    string fileName = Path.GetFileName(FilePath);
+    string result = "";
+    Excel.Application xlApp = null;
+    Excel.Workbook xlWorkBook = null;
+    string TranslationTypeId;
+    string Sessionkey = CreateSessionId();
+    Cryptography objCryptography = new Cryptography();
+    string excelPwd = string.Empty;
+    int myExcelProcessId = 0;
+    string strProcessName = string.Empty;
+
+    try
+    {
+        DataSet ds = new DataSet();
+        sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(AppSettings.Get(CONFIG_APPNAME));
+
+        objArguments.TableNames = new string[1];
+        objArguments.FilterConditions = new string[1];
+        objArguments.dsData = ds;
+        objArguments.ConnectionDatabase = AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION);
+        objArguments.ConnectionUser = AppSettings.Get(CONFIG_DB_USER);
+        objArguments.ConnectionPwd = AppSettings.Get(CONFIG_DB_PWD);
+        objArguments.TableNames[0] = "TranslationType";
+        objArguments.FilterConditions[0] = "Code = '" + TemplateName + "'";
+
+        objArguments.AuditConnectionDatabases = new string[1];
+        objArguments.AuditConnectionUsers = new string[1];
+        objArguments.AuditConnectionPwds = new string[1];
+        objArguments.AuditConnectionDatabases[0] = AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION);
+        objArguments.AuditConnectionUsers[0] = AppSettings.Get(CONFIG_DB_USER);
+        objArguments.AuditConnectionPwds[0] = AppSettings.Get(CONFIG_DB_PWD);
+
+        GetData(objArguments, Sessionkey);
+
+        DataTable tb = ds.Tables[0];
+        DataRow row = tb.Rows[0];
+        TranslationTypeId = row["TranslationTypeId"].ToString();
+
+        excelPwd = ClsPDScoreCardEncryption.Decrypt("", AppSettings.Get(CONFIG_EXCEL_PWD));
+
+        xlApp = new Excel.Application();
+        myExcelProcessId = GetExcelProcessID();
+        xlApp.DisplayAlerts = false;
+        xlWorkBook = xlApp.Workbooks.Open(FilePath, Password: excelPwd, ReadOnly: true, IgnoreReadOnlyRecommended: true, UpdateLinks: false);
+        xlApp.Visible = false;
+
+        xmlstring = GetScoreCardXML(xlWorkBook, TranslationTypeId, TemplateName);
+        result = SaveScoreCardData(EntityScorecardID, fileName, userID, xmlstring);
+
+        xlWorkBook.Close(SaveChanges: false);
+
+        return "";
+    }
+    catch (Exception ex)
+    {
+        if (xlApp != null && xlWorkBook != null)
+        {
+            xlWorkBook.Close(SaveChanges: false);
+        }
+        return ex.Message;
+    }
+    finally
+    {
+        if (xlWorkBook != null)
+        {
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlWorkBook);
+            xlWorkBook = null;
+        }
+        if (xlApp != null)
+        {
+            Excel.Workbooks wbs = xlApp.Workbooks;
+            wbs.Close();
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(wbs);
+            wbs = null;
+
+            xlApp.Quit();
+            System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlApp);
+            xlApp = null;
+        }
+
+        Thread.Sleep(200);
+        GC.Collect();
+        GC.WaitForPendingFinalizers();
+
+        try
+        {
+            Process aProcess = Process.GetProcessById(myExcelProcessId);
+            strProcessName = aProcess.ProcessName;
+            if (aProcess != null && strProcessName.ToUpper() == "EXCEL")
+            {
+                aProcess.Kill();
+            }
+        }
+        catch (Exception ex)
+        {
+        }
+    }
+}
+
+
+
+
