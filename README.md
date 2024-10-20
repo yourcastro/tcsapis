@@ -1,9 +1,11 @@
-Public Enum CVErrEnum As Int32
-        ErrDiv0 = -2146826281
-        ErrNA = -2146826246
-        ErrName = -2146826259
-        ErrNull = -2146826288
-        ErrNum = -2146826252
-        ErrRef = -2146826265
-        ErrValue = -2146826273
-    End Enum
+ Public Function IsCVErr(ByVal obj As Object) As Boolean
+        If IsNumeric(obj) Then
+            Select Case CType(obj, Integer)
+                Case CVErrEnum.ErrDiv0, CVErrEnum.ErrNA, CVErrEnum.ErrName, CVErrEnum.ErrNull, CVErrEnum.ErrNum, CVErrEnum.ErrRef, CVErrEnum.ErrValue
+                    Return True
+                Case Else
+                    Return False
+            End Select
+        End If
+        Return False
+    End Function
