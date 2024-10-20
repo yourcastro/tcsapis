@@ -1,11 +1,20 @@
- Public Function IsCVErr(ByVal obj As Object) As Boolean
-        If IsNumeric(obj) Then
-            Select Case CType(obj, Integer)
-                Case CVErrEnum.ErrDiv0, CVErrEnum.ErrNA, CVErrEnum.ErrName, CVErrEnum.ErrNull, CVErrEnum.ErrNum, CVErrEnum.ErrRef, CVErrEnum.ErrValue
-                    Return True
-                Case Else
-                    Return False
-            End Select
-        End If
-        Return False
-    End Function
+public bool IsCVErr(object obj)
+{
+    if (obj is int)
+    {
+        switch ((int)obj)
+        {
+            case (int)CVErrEnum.ErrDiv0:
+            case (int)CVErrEnum.ErrNA:
+            case (int)CVErrEnum.ErrName:
+            case (int)CVErrEnum.ErrNull:
+            case (int)CVErrEnum.ErrNum:
+            case (int)CVErrEnum.ErrRef:
+            case (int)CVErrEnum.ErrValue:
+                return true;
+            default:
+                return false;
+        }
+    }
+    return false;
+}
