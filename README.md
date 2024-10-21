@@ -19,3 +19,5 @@ private int? GetExcelProcessID()
     }
     return null;
 }
+
+ Dim listProcess As New List(Of Integer)
