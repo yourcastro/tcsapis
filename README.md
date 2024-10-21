@@ -1,10 +1,13 @@
-Private Function RangeNameExists(ActiveWorkbook As Excel.Workbook, nname As String) As Boolean
-        Dim n As Excel.Name
-        RangeNameExists = False
-        For Each n In ActiveWorkbook.Names
-            If n.Name = nname Then
-                RangeNameExists = True
-                Exit Function
-            End If
-        Next n
-    End Function
+private bool RangeNameExists(Excel.Workbook activeWorkbook, string nname)
+{
+    bool rangeNameExists = false;
+    foreach (Excel.Name n in activeWorkbook.Names)
+    {
+        if (n.Name == nname)
+        {
+            rangeNameExists = true;
+            break; // Exit the function
+        }
+    }
+    return rangeNameExists;
+}
