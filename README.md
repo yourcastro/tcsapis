@@ -1,3 +1,4 @@
-Public Shared Function CreateSessionId() As String
-        Return Guid.NewGuid.ToString
-    End Function
+public static string CreateSessionId()
+{
+    return Guid.NewGuid().ToString();
+}
