@@ -1,119 +1,151 @@
-Public Function GetScoredCardForOilGasExplorationProductionCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasExplorationProductionCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasExplorationProductionCIQ(string filename, ref int ID, ref string name, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasExplorationProductionCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-     Public Function GetScoredCardForOilGasExplorationProductionNonCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef GICS_Sector As String, ByRef GICS_Industry_Group As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasExplorationProductionNonCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, GICS_Sector, GICS_Industry_Group, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasExplorationProductionNonCIQ(string filename, ref int ID, ref string name, ref string GICS_Sector, ref string GICS_Industry_Group, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasExplorationProductionNonCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref GICS_Sector, ref GICS_Industry_Group, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-    Public Function GetScoredCardForOilGasMidstreamCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasMidstreamCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasMidstreamCIQ(string filename, ref int ID, ref string name, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasMidstreamCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-     Public Function GetScoredCardForOilGasMidstreamNonCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef GICS_Sector As String, ByRef GICS_Industry_Group As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasMidstreamNonCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, GICS_Sector, GICS_Industry_Group, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasMidstreamNonCIQ(string filename, ref int ID, ref string name, ref string GICS_Sector, ref string GICS_Industry_Group, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasMidstreamNonCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref GICS_Sector, ref GICS_Industry_Group, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-    Public Function GetScoredCardForOilGasOilFieldServicesCIQ(ByVal filename As String, ByRef ID As Integer,
-ByRef name As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasOilFieldServicesCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasOilFieldServicesCIQ(string filename, ref int ID, ref string name, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasOilFieldServicesCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-    Public Function GetScoredCardForOilGasOilFieldServicesNonCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef GICS_Sector As String, ByRef GICS_Industry_Group As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasOilFieldServicesNonCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, GICS_Sector, GICS_Industry_Group, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasOilFieldServicesNonCIQ(string filename, ref int ID, ref string name, ref string GICS_Sector, ref string GICS_Industry_Group, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasOilFieldServicesNonCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref GICS_Sector, ref GICS_Industry_Group, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-    Public Function GetScoredCardForOilGasRefiningMarketingCIQ(ByVal filename As String, ByRef ID As Integer,
-ByRef name As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasRefiningMarketingCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasRefiningMarketingCIQ(string filename, ref int ID, ref string name, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasRefiningMarketingCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
 
-    Public Function GetScoredCardForOilGasRefiningMarketingNonCIQ(ByVal filename As String, ByRef ID As Integer,
-    ByRef name As String, ByRef GICS_Sector As String, ByRef GICS_Industry_Group As String, ByRef Lehmans_Sector As String) As String
-        Try
-            Return ClsPDScoreCardFunctions.GetScoredCardForOilGasRefiningMarketingNonCIQ(AppSettings.Get(CONFIG_APPNAME),
-                            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
-                            AppSettings.Get(CONFIG_DB_USER),
-                            AppSettings.Get(CONFIG_DB_PWD),
-                            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
-                            CreateSessionId(),
-                            filename, ID, name, GICS_Sector, GICS_Industry_Group, Lehmans_Sector)
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
+public string GetScoredCardForOilGasRefiningMarketingNonCIQ(string filename, ref int ID, ref string name, ref string GICS_Sector, ref string GICS_Industry_Group, ref string Lehmans_Sector)
+{
+    try
+    {
+        return ClsPDScoreCardFunctions.GetScoredCardForOilGasRefiningMarketingNonCIQ(
+            AppSettings.Get(CONFIG_APPNAME),
+            AppSettings.Get(CONFIG_DB_DATASTORE_CONNECTION),
+            AppSettings.Get(CONFIG_DB_USER),
+            AppSettings.Get(CONFIG_DB_PWD),
+            AppSettings.Get(CONFIG_DB_OPERATIONAL_CONNECTION),
+            CreateSessionId(),
+            filename, ref ID, ref name, ref GICS_Sector, ref GICS_Industry_Group, ref Lehmans_Sector);
+    }
+    catch (Exception ex)
+    {
+        return ex.Message;
+    }
+}
