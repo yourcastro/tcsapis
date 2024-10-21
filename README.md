@@ -1,9 +1,18 @@
-Try
-                Dim aProcess As Process = Nothing
-                strProcessName = Process.GetProcessById(myExcelProcessId).ProcessName
-                aProcess = Process.GetProcessById(myExcelProcessId)
-                If aProcess IsNot Nothing And UCase(strProcessName) = "EXCEL" Then
-                    aProcess.Kill()
-                End If
-            Catch ex As Exception
-            End Try
+using System;
+using System.Diagnostics;
+
+try
+{
+    Process aProcess = null;
+    string strProcessName = Process.GetProcessById(myExcelProcessId).ProcessName;
+    aProcess = Process.GetProcessById(myExcelProcessId);
+    
+    if (aProcess != null && strProcessName.ToUpper() == "EXCEL")
+    {
+        aProcess.Kill();
+    }
+}
+catch (Exception ex)
+{
+    // Handle the exception if needed
+}
