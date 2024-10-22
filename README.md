@@ -1,185 +1,43 @@
+using Microsoft.Office.Interop.Excel;
+using RestSharp;
 using System;
-using System.Data;
-using System.Xml;
-using IT.INV.Service.Base;
+using System.IO;
+using System.Threading.Tasks;
 
-public class ClsPDScoreCardProcessor
+public class SharePointClient
 {
-    private int mFileID;
-    private string mFilename;
-    private string mUserID;
-    private string mAppName;
-    private string mStrConnDB;
-    private string mStrDBUser;
-    private string mStrDBPwd;
-    private string mStrConnAuditDB;
-    private string mStrSessionKey;
-    private string mXML;
+    private string sharepointSiteUrl = "https://<your-tenant>.sharepoint.com/sites/<site-name>";
+    private string accessToken = "<your-access-token>";  // OAuth token for authentication
 
-    public ClsPDScoreCardProcessor(int fileID, string filename, string userID, string appName, string strConnDB, string user, string password, string strConnAuditDB, string sessionKey, string xml)
+    public SharePointClient()
     {
-        mFileID = fileID;
-        mFilename = filename;
-        mUserID = userID;
-        mAppName = appName;
-        mStrConnDB = strConnDB;
-        mStrDBUser = user;
-        mStrDBPwd = password;
-        mStrConnAuditDB = strConnAuditDB;
-        mStrSessionKey = sessionKey;
-        mXML = xml;
+        // You can implement logic here to get an access token via OAuth2 if required
     }
 
-    public void WriteDB()
+    public async Task<Workbook> GetFileVersionAndLoadIntoExcelAsync(string fileRelativePath, string versionLabel)
     {
-        string msg = "OK";
-        try
+        var client = new RestClient(sharepointSiteUrl);
+
+        // Step 1: Download the specific version of the file
+        var versionDownloadRequest = new RestRequest($"{fileRelativePath}/versions/{versionLabel}/$value", Method.Get);
+        versionDownloadRequest.AddHeader("Authorization", "Bearer " + accessToken);
+
+        var versionResponse = await client.ExecuteAsync(versionDownloadRequest);
+
+        if (!versionResponse.IsSuccessful)
         {
-            if (ClsPDScoreCardFunctions.IsATemplateFile(mAppName, mStrConnDB, mStrDBUser, mStrDBPwd, mStrConnAuditDB, mStrSessionKey, mFilename))
-            {
-                return;
-            }
-
-            DataSet m_dsData = new DataSet();
-            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
-            {
-                dsData = m_dsData,
-                ConnectionDatabase = mStrConnDB,
-                ConnectionUser = mStrDBUser,
-                ConnectionPwd = mStrDBPwd
-            };
-
-            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
-            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
-            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
-            objArguments.TableNames = new string[] { "inv_party_entity_scorecard_factors_t" };
-            objArguments.FilterConditions = new string[] { "party_entity_scorecard_file_nm = '" + mFilename + "'" };
-
-            string sessionKey = mStrSessionKey;
-            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
-            DataTable tb = m_dsData.Tables[0];
-
-            if (tb.Rows.Count > 0)
-            {
-                DataRow row = tb.Rows[0];
-                SetRowValues(row);
-                ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
-                WriteScoreCardTable(Convert.ToInt32(row["party_entity_scorecard_factors_id"]));
-            }
+            Console.WriteLine("Failed to download specific file version.");
+            return null;
         }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
 
-    public void WriteScoreCardTable(int ScorecardFactorsID)
-    {
-        string msg = "OK";
-        try
-        {
-            DataSet m_dsData = new DataSet();
-            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
-            {
-                dsData = m_dsData,
-                ConnectionDatabase = mStrConnDB,
-                ConnectionUser = mStrDBUser,
-                ConnectionPwd = mStrDBPwd
-            };
+        // Step 2: Write the file to a temporary location
+        string tempFilePath = Path.Combine(Path.GetTempPath(), "tempDownloadedFile.xlsx");
+        File.WriteAllBytes(tempFilePath, versionResponse.RawBytes);
 
-            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
-            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
-            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
-            objArguments.TableNames = new string[] { "inv_party_entity_scorecard_t" };
-            objArguments.FilterConditions = new string[] { "party_entity_scorecard_factors_id = " + ScorecardFactorsID.ToString() };
+        // Step 3: Open the Excel file using Microsoft.Office.Interop.Excel
+        Application excelApp = new Application();
+        Workbook workbook = excelApp.Workbooks.Open(tempFilePath);
 
-            string sessionKey = mStrSessionKey;
-            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
-            DataTable tb = m_dsData.Tables[0];
-
-            if (tb.Rows.Count > 0)
-            {
-                DataRow row = tb.Rows[0];
-                row["last_update_process_id"] = mUserID;
-                row["last_update_dt_tm"] = DateTime.Now;
-            }
-            ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    private void SetRowValues(DataRow row)
-    {
-        try
-        {
-            XmlDocument xmlDoc = new XmlDocument();
-            xmlDoc.LoadXml(mXML);
-            XmlNodeList nodes = xmlDoc.GetElementsByTagName("Data");
-            if (nodes.Count > 0)
-            {
-                XmlNode nodeData = nodes.Item(0);
-                if (nodeData.HasChildNodes)
-                {
-                    foreach (XmlNode node in nodeData.ChildNodes)
-                    {
-                        row[node.Name] = node.Attributes["value"].InnerText;
-                    }
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            throw ex;
-        }
-    }
-
-    public string TestDBAccess()
-    {
-        string msg = "OK";
-        try
-        {
-            DataSet m_dsData = new DataSet();
-            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
-            {
-                dsData = m_dsData,
-                ConnectionDatabase = mStrConnDB,
-                ConnectionUser = mStrDBUser,
-                ConnectionPwd = mStrDBPwd
-            };
-
-            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
-            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
-            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
-            objArguments.TableNames = new string[] { "inv_pdscorecard_file_t" };
-            objArguments.FilterConditions = new string[] { "pdscorecard_file_id = 4" };
-
-            string sessionKey = mStrSessionKey;
-            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
-            DataTable tb = m_dsData.Tables[0];
-
-            if (tb.Rows.Count == 0)
-            {
-                DataRow row = tb.NewRow();
-                row["pdscorecard_file_id"] = 4;
-                row["excel_file_nm"] = "Test.xls";
-                row["extract_data1"] = "Four";
-                tb.Rows.Add(row);
-            }
-            else
-            {
-                DataRow row = tb.Rows[0];
-                row["extract_data1"] = "One";
-            }
-
-            ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
-            return msg;
-        }
-        catch (Exception ex)
-        {
-            return ex.Message;
-        }
+        return workbook;
     }
 }
