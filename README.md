@@ -1,252 +1,185 @@
-Imports System.Xml
-Imports IT.INV.Service.Base
+using System;
+using System.Data;
+using System.Xml;
+using IT.INV.Service.Base;
 
+public class ClsPDScoreCardProcessor
+{
+    private int mFileID;
+    private string mFilename;
+    private string mUserID;
+    private string mAppName;
+    private string mStrConnDB;
+    private string mStrDBUser;
+    private string mStrDBPwd;
+    private string mStrConnAuditDB;
+    private string mStrSessionKey;
+    private string mXML;
 
-Public Class ClsPDScoreCardProcesor
-    Private mFileID As Integer
-    Private mFilename As String
-    Private mUserID As String
-    Private mAppName As String
+    public ClsPDScoreCardProcessor(int fileID, string filename, string userID, string appName, string strConnDB, string user, string password, string strConnAuditDB, string sessionKey, string xml)
+    {
+        mFileID = fileID;
+        mFilename = filename;
+        mUserID = userID;
+        mAppName = appName;
+        mStrConnDB = strConnDB;
+        mStrDBUser = user;
+        mStrDBPwd = password;
+        mStrConnAuditDB = strConnAuditDB;
+        mStrSessionKey = sessionKey;
+        mXML = xml;
+    }
 
-    Private mStrConnDB As String
-    Private mStrDBUser As String
-    Private mStrDBPwd As String
-    Private mStrConnAuditDB As String
-    Private mStrSessionKey As String
+    public void WriteDB()
+    {
+        string msg = "OK";
+        try
+        {
+            if (ClsPDScoreCardFunctions.IsATemplateFile(mAppName, mStrConnDB, mStrDBUser, mStrDBPwd, mStrConnAuditDB, mStrSessionKey, mFilename))
+            {
+                return;
+            }
 
-    Private mXML As String
+            DataSet m_dsData = new DataSet();
+            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
+            {
+                dsData = m_dsData,
+                ConnectionDatabase = mStrConnDB,
+                ConnectionUser = mStrDBUser,
+                ConnectionPwd = mStrDBPwd
+            };
 
+            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
+            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
+            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
+            objArguments.TableNames = new string[] { "inv_party_entity_scorecard_factors_t" };
+            objArguments.FilterConditions = new string[] { "party_entity_scorecard_file_nm = '" + mFilename + "'" };
 
-    Sub New(ByVal fileID As Integer, ByVal filename As String, ByVal userID As String, ByVal appName As String, ByVal strConnDB As String, _
-        ByVal user As String, ByVal password As String, ByVal strConnAuditDB As String, _
-        ByVal sessionKey As String, ByVal xml As String)
+            string sessionKey = mStrSessionKey;
+            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
+            DataTable tb = m_dsData.Tables[0];
 
-        mFileID = fileID
-        mFilename = filename
-        mUserID = userID
-        mAppName = appName
+            if (tb.Rows.Count > 0)
+            {
+                DataRow row = tb.Rows[0];
+                SetRowValues(row);
+                ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
+                WriteScoreCardTable(Convert.ToInt32(row["party_entity_scorecard_factors_id"]));
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
-        mStrConnDB = strConnDB
-        mStrDBUser = user
-        mStrDBPwd = password
-        mStrConnAuditDB = strConnAuditDB
-        mStrSessionKey = sessionKey
+    public void WriteScoreCardTable(int ScorecardFactorsID)
+    {
+        string msg = "OK";
+        try
+        {
+            DataSet m_dsData = new DataSet();
+            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
+            {
+                dsData = m_dsData,
+                ConnectionDatabase = mStrConnDB,
+                ConnectionUser = mStrDBUser,
+                ConnectionPwd = mStrDBPwd
+            };
 
-        mXML = xml
-    End Sub
+            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
+            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
+            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
+            objArguments.TableNames = new string[] { "inv_party_entity_scorecard_t" };
+            objArguments.FilterConditions = new string[] { "party_entity_scorecard_factors_id = " + ScorecardFactorsID.ToString() };
 
-    'Public Sub LoadXML(ByVal xml As String)
-    '    Try
-    '        mXML = My.Computer.FileSystem.ReadAllText("C:\Documents and Settings\ak68\My Documents\Visual Studio 2005\CreditRiskPortalWebService\Bin\Test.xml")
-    '        Dim str As String
+            string sessionKey = mStrSessionKey;
+            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
+            DataTable tb = m_dsData.Tables[0];
 
-    '        Dim warningMsg As String = ""
-    '        Dim i As Int32
-    '        Dim xmlDoc As New XmlDocument()
-    '        xmlDoc.LoadXml(mXML)
-    '        Dim nodes As XmlNodeList = xmlDoc.GetElementsByTagName("Data")
-    '        Dim node As XmlNode
-    '        If nodes.Count > 0 Then
-    '            Dim nodeData As XmlNode = nodes.Item(0)
-    '            If nodeData.HasChildNodes Then
-    '                For i = 0 To nodeData.ChildNodes.Count - 1
-    '                    node = nodeData.ChildNodes(i)
-    '                    str = node.Name
-    '                    str = node.Attributes("value").InnerText
-    '                Next i
-    '            End If
+            if (tb.Rows.Count > 0)
+            {
+                DataRow row = tb.Rows[0];
+                row["last_update_process_id"] = mUserID;
+                row["last_update_dt_tm"] = DateTime.Now;
+            }
+            ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
-    '        End If
-    '        i = 0
+    private void SetRowValues(DataRow row)
+    {
+        try
+        {
+            XmlDocument xmlDoc = new XmlDocument();
+            xmlDoc.LoadXml(mXML);
+            XmlNodeList nodes = xmlDoc.GetElementsByTagName("Data");
+            if (nodes.Count > 0)
+            {
+                XmlNode nodeData = nodes.Item(0);
+                if (nodeData.HasChildNodes)
+                {
+                    foreach (XmlNode node in nodeData.ChildNodes)
+                    {
+                        row[node.Name] = node.Attributes["value"].InnerText;
+                    }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+    }
 
-    '    Catch ex As Exception
-    '        Throw ex
-    '    End Try
+    public string TestDBAccess()
+    {
+        string msg = "OK";
+        try
+        {
+            DataSet m_dsData = new DataSet();
+            sGenericTableRequestArguments objArguments = new sGenericTableRequestArguments(mAppName)
+            {
+                dsData = m_dsData,
+                ConnectionDatabase = mStrConnDB,
+                ConnectionUser = mStrDBUser,
+                ConnectionPwd = mStrDBPwd
+            };
 
-    'End Sub
+            objArguments.AuditConnectionDatabases = new string[] { mStrConnAuditDB };
+            objArguments.AuditConnectionUsers = new string[] { mStrDBUser };
+            objArguments.AuditConnectionPwds = new string[] { mStrDBPwd };
+            objArguments.TableNames = new string[] { "inv_pdscorecard_file_t" };
+            objArguments.FilterConditions = new string[] { "pdscorecard_file_id = 4" };
 
+            string sessionKey = mStrSessionKey;
+            ClsPDScoreCardFunctions.GetData(objArguments, sessionKey);
+            DataTable tb = m_dsData.Tables[0];
 
+            if (tb.Rows.Count == 0)
+            {
+                DataRow row = tb.NewRow();
+                row["pdscorecard_file_id"] = 4;
+                row["excel_file_nm"] = "Test.xls";
+                row["extract_data1"] = "Four";
+                tb.Rows.Add(row);
+            }
+            else
+            {
+                DataRow row = tb.Rows[0];
+                row["extract_data1"] = "One";
+            }
 
-
-    Public Sub WriteDB()
-        Dim msg As String = "OK"
-        Try
-            If ClsPDScoreCardFunctions.IsATemplateFile(mAppName, mStrConnDB, mStrDBUser, mStrDBPwd, mStrConnAuditDB, mStrSessionKey, mFilename) Then
-                Return
-            End If
-
-            Dim m_dsData As New DataSet
-            Dim objArguments As New sGenericTableRequestArguments(mAppName)
-            With objArguments
-                ReDim .TableNames(0)
-                ReDim .FilterConditions(0)
-                .dsData = m_dsData
-                .ConnectionDatabase = mStrConnDB
-                .ConnectionUser = mStrDBUser
-                .ConnectionPwd = mStrDBPwd
-
-                ReDim .AuditConnectionDatabases(0)
-                ReDim .AuditConnectionUsers(0)
-                ReDim .AuditConnectionPwds(0)
-                .AuditConnectionDatabases(0) = mStrConnAuditDB
-                .AuditConnectionUsers(0) = mStrDBUser
-                .AuditConnectionPwds(0) = mStrDBPwd
-
-                .TableNames(0) = "inv_party_entity_scorecard_factors_t"
-                .FilterConditions(0) = "party_entity_scorecard_file_nm = '" + mFilename + "'"
-            End With
-
-            Dim seesionKey As String = mStrSessionKey
-            ClsPDScoreCardFunctions.GetData(objArguments, seesionKey)
-            Dim tb As DataTable = m_dsData.Tables(0)
-            'If tb.Rows.Count = 0 Then
-            '    Dim row As DataRow = tb.NewRow()
-            '    row.Item("party_entity_scorecard_factors_id") = mFileID
-            '    row.Item("party_entity_scorecard_file_nm") = mFilename
-            '    row.Item("create_dt_tm") = DateTime.Now
-            '    row.Item("create_process_id") = mUserID
-            '    SetRowValues(row)
-            '    tb.Rows.Add(row)
-            'Else
-            '    Dim row As DataRow = tb.Rows(0)
-            '    SetRowValues(row)
-            'End If
-            'ClsPDScoreCardFunctions.UpdateData(objArguments, seesionKey)
-            If tb.Rows.Count > 0 Then
-                Dim row As DataRow = tb.Rows(0)
-                SetRowValues(row)
-                ClsPDScoreCardFunctions.UpdateData(objArguments, seesionKey)
-                WriteScoreCardTable(row("party_entity_scorecard_factors_id"))
-            End If
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
-
-    Public Sub WriteScoreCardTable(ByVal ScorecardFactorsID As Integer)
-        Dim msg As String = "OK"
-        Try
-            Dim m_dsData As New DataSet
-            Dim objArguments As New sGenericTableRequestArguments(mAppName)
-            With objArguments
-                ReDim .TableNames(0)
-                ReDim .FilterConditions(0)
-                .dsData = m_dsData
-                .ConnectionDatabase = mStrConnDB
-                .ConnectionUser = mStrDBUser
-                .ConnectionPwd = mStrDBPwd
-
-                ReDim .AuditConnectionDatabases(0)
-                ReDim .AuditConnectionUsers(0)
-                ReDim .AuditConnectionPwds(0)
-                .AuditConnectionDatabases(0) = mStrConnAuditDB
-                .AuditConnectionUsers(0) = mStrDBUser
-                .AuditConnectionPwds(0) = mStrDBPwd
-
-                .TableNames(0) = "inv_party_entity_scorecard_t"
-                .FilterConditions(0) = "party_entity_scorecard_factors_id = " + ScorecardFactorsID.ToString
-            End With
-
-            Dim seesionKey As String = mStrSessionKey
-            ClsPDScoreCardFunctions.GetData(objArguments, seesionKey)
-            Dim tb As DataTable = m_dsData.Tables(0)
-            If tb.Rows.Count > 0 Then
-                Dim row As DataRow = tb.Rows(0)
-                row.Item("last_update_process_id") = mUserID
-                row.Item("last_update_dt_tm") = DateTime.Now
-            End If
-            ClsPDScoreCardFunctions.UpdateData(objArguments, seesionKey)
-        Catch ex As Exception
-            Throw ex
-        End Try
-
-    End Sub
-
-    Private Sub SetRowValues(ByVal row As DataRow)
-        Try
-            Dim i As Int32
-            Dim xmlDoc As New XmlDocument()
-            xmlDoc.LoadXml(mXML)
-            Dim nodes As XmlNodeList = xmlDoc.GetElementsByTagName("Data")
-            Dim node As XmlNode
-            If nodes.Count > 0 Then
-                Dim nodeData As XmlNode = nodes.Item(0)
-                If nodeData.HasChildNodes Then
-                    For i = 0 To nodeData.ChildNodes.Count - 1
-                        node = nodeData.ChildNodes(i)
-                        row.Item(node.Name) = node.Attributes("value").InnerText
-                    Next i
-                End If
-
-            End If
-
-            'Dim cardItem As ClsScoreCardItem
-            'Dim i As Integer
-
-            'For i = 0 To mItems.Count - 1
-            'cardItem = CType(mItems(i), ClsScoreCardItem)
-            'row.Item(cardItem.mField) = cardItem.mValue
-            'Next
-
-        Catch ex As Exception
-            Throw ex
-        End Try
-    End Sub
-    Public Function TestDBAccess() As String
-        Dim msg As String = "OK"
-        Try
-            Dim m_dsData As New DataSet
-            Dim objArguments As New sGenericTableRequestArguments(mAppName)
-            With objArguments
-                ReDim .TableNames(0)
-                ReDim .FilterConditions(0)
-                .dsData = m_dsData
-                .ConnectionDatabase = mStrConnDB
-                .ConnectionUser = mStrDBUser
-                .ConnectionPwd = mStrDBPwd
-                '.ConnectionDatabase = "Server=SQLRG1D.ca.sunlife\SLAV34D;Database=VRRPartyEntityDatastore;"
-                '.ConnectionUser = "RRWebUser"
-                '.ConnectionPwd = "JASUR/v70o8="
-                .TableNames(0) = "inv_pdscorecard_file_t"
-                .FilterConditions(0) = "pdscorecard_file_id = 4"
-
-                ReDim .AuditConnectionDatabases(0)
-                ReDim .AuditConnectionUsers(0)
-                ReDim .AuditConnectionPwds(0)
-                .AuditConnectionDatabases(0) = mStrConnAuditDB
-                .AuditConnectionUsers(0) = mStrDBUser
-                .AuditConnectionPwds(0) = mStrDBPwd
-                '.AuditConnectionDatabases(0) = "Server=SQLRG1D.ca.sunlife\SLAV34D;Database=VRRCreditRiskOperational;"
-                '.AuditConnectionUsers(0) = "RRWebUser"
-                '.AuditConnectionPwds(0) = "JASUR/v70o8="
-
-            End With
-
-            Dim seesionKey As String = mStrSessionKey
-            ClsPDScoreCardFunctions.GetData(objArguments, seesionKey)
-            Dim tb As DataTable = m_dsData.Tables(0)
-            If tb.Rows.Count = 0 Then
-                Dim row As DataRow = tb.NewRow()
-                row.Item("pdscorecard_file_id") = 4
-                row.Item("excel_file_nm") = "Test.xls"
-                row.Item("extract_data1") = "Four"
-                tb.Rows.Add(row)
-            Else
-                Dim row As DataRow = tb.Rows(0)
-                row.Item("extract_data1") = "One"
-            End If
-            ClsPDScoreCardFunctions.UpdateData(objArguments, seesionKey)
-
-            Return msg
-        Catch ex As Exception
-            Return ex.Message
-        End Try
-    End Function
-
-
-
-End Class
-
-
+            ClsPDScoreCardFunctions.UpdateData(objArguments, sessionKey);
+            return msg;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
+    }
+}
