@@ -210,4 +210,43 @@ Public Class ClsPDScoreCardProcesor
                 '.ConnectionUser = "RRWebUser"
                 '.ConnectionPwd = "JASUR/v70o8="
                 .TableNames(0) = "inv_pdscorecard_file_t"
+                .FilterConditions(0) = "pdscorecard_file_id = 4"
+
+                ReDim .AuditConnectionDatabases(0)
+                ReDim .AuditConnectionUsers(0)
+                ReDim .AuditConnectionPwds(0)
+                .AuditConnectionDatabases(0) = mStrConnAuditDB
+                .AuditConnectionUsers(0) = mStrDBUser
+                .AuditConnectionPwds(0) = mStrDBPwd
+                '.AuditConnectionDatabases(0) = "Server=SQLRG1D.ca.sunlife\SLAV34D;Database=VRRCreditRiskOperational;"
+                '.AuditConnectionUsers(0) = "RRWebUser"
+                '.AuditConnectionPwds(0) = "JASUR/v70o8="
+
+            End With
+
+            Dim seesionKey As String = mStrSessionKey
+            ClsPDScoreCardFunctions.GetData(objArguments, seesionKey)
+            Dim tb As DataTable = m_dsData.Tables(0)
+            If tb.Rows.Count = 0 Then
+                Dim row As DataRow = tb.NewRow()
+                row.Item("pdscorecard_file_id") = 4
+                row.Item("excel_file_nm") = "Test.xls"
+                row.Item("extract_data1") = "Four"
+                tb.Rows.Add(row)
+            Else
+                Dim row As DataRow = tb.Rows(0)
+                row.Item("extract_data1") = "One"
+            End If
+            ClsPDScoreCardFunctions.UpdateData(objArguments, seesionKey)
+
+            Return msg
+        Catch ex As Exception
+            Return ex.Message
+        End Try
+    End Function
+
+
+
+End Class
+
 
