@@ -40,3 +40,7 @@ class Program
 
 GET /sites/{site-name}/_api/web/GetFileByServerRelativeUrl('/{path-to-file}')/versions({version-id})/openbinarystream
 
+https://sunlifefinancial.sharepoint.com/sites/Credit-Risk-POC/_api/web//GetFileByServerRelativeUrl('/sites/Credit-Risk-POC/CreditRiskDocuments/PD_Test.xlsx')/versions(24)/openbinarystream
+
+Cannot find resource for the request SP.RequestContext.current/web/GetFileByServerRelativeUrl('/sites/Credit-Risk-POC/CreditRiskDocuments/PD_Test.xlsx')/versions(24)
+
