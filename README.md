@@ -5,3 +5,8 @@ File name: 'office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111
 
 
 warning NU1701: Package 'Microsoft.Office.Interop.Excel 15.0.4420.1017' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
+
+
+
+Application excelApp = new Application();
+Workbook workbook = excelApp.Workbooks.Open(tempFilePath);
