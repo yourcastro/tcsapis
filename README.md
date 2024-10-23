@@ -37,3 +37,6 @@ class Program
         }
     }
 }
+
+GET /sites/{site-name}/_api/web/GetFileByServerRelativeUrl('/{path-to-file}')/versions({version-id})/openbinarystream
+
