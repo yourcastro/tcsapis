@@ -10,3 +10,19 @@ warning NU1701: Package 'Microsoft.Office.Interop.Excel 15.0.4420.1017' was rest
 
 Application excelApp = new Application();
 Workbook workbook = excelApp.Workbooks.Open(tempFilePath);
+
+
+// Set the EPPlus license context (required by EPPlus 5+)
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;  // Change to appropriate license if using commercially
+
+    // Load the workbook from the file
+    using (var package = new ExcelPackage(new FileInfo(tempFilePath)))
+    {
+        // Access the first worksheet (for example)
+        var workbook = package.Workbook;
+        var worksheet = workbook.Worksheets[0];  // Access the first worksheet
+
+        // You can now work with the worksheet
+        var cellValue = worksheet.Cells[1, 1].Text;  // Get value from cell A1
+        // Continue with your logic
+    }
