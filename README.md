@@ -1,131 +1,83 @@
-using OfficeOpenXml;
-using OfficeOpenXml.Table;
-using System;
-using System.Collections.Generic;
-using System.IO;
+ public string SaveScoreCardFileData(int EntityScorecardID, string FilePath, string TemplateName, string userID)
+ {
+     string xmlstring = "";
+     string fileName = Path.GetFileName(FilePath);
+     string result = "";
+     Application xlApp = null;
+     Workbook xlWorkBook = null;
+     string TranslationTypeId = string.Empty;
+     string Sessionkey = CreateSessionId();
+     //Cryptography objCryptography = new Cryptography();
+     string excelPwd = string.Empty;
+     int? myExcelProcessId = 0;
+     string strProcessName = string.Empty;
 
-public string GetUpdatedScoreCardFile(string filepath, string templatename, string userID)
-{
-    int id = 0;
-    string name = "";
-    string GICS_sector = "";
-    string GICS_industry_group = "";
-    string result = "";
-    string lehmans_sector = "";
-    CryptorEngine objCryptography = new CryptorEngine();
-    List<string> wbNames = new List<string>();
-    string fileName = Path.GetFileName(filepath);
-    string excelPwd = string.Empty;
+     try
+     {
+         ClsPDScoreCardFunctions.GetScoredCardTranslationTypeId(
+             _appSettings.Application_Name,
+             _appSettings.SQLUserName,
+             _appSettings.SQLPassword,
+             _appSettings.CR_DB_Operational,
+             CreateSessionId(), TemplateName, ref TranslationTypeId);
 
-    try
-    {
-        // Select the appropriate template
-        switch (templatename)
-        {
-            case "Financial Institutions - Commercial Banks":
-                result = GetScoredCardForCommerialBank(fileName, ref id, ref name);
-                break;
-            // Add other cases here as necessary
-        }
+         excelPwd = _appSettings.WorkBookPwd ?? string.Empty;
 
-        excelPwd = ClsPDScoreCardEncryption.Decrypt("", _appSettings?.WorkBookPwd ?? string.Empty);
+         xlApp = new Application();
+         myExcelProcessId = GetExcelProcessID();
+         xlApp.DisplayAlerts = false;
+         xlWorkBook = xlApp.Workbooks.Open(FilePath, Password: excelPwd, ReadOnly: true, IgnoreReadOnlyRecommended: true, UpdateLinks: false);
+         xlApp.Visible = false;
 
-        if (result == "OK")
-        {
-            // Open the Excel file using EPPlus
-            FileInfo file = new FileInfo(filepath);
+         xmlstring = GetScoreCardXML(xlWorkBook, TranslationTypeId, TemplateName);
+         result = SaveScoreCardData(EntityScorecardID, fileName, userID, xmlstring);
 
-            // EPPlus requires a license declaration in commercial use cases
-            ExcelPackage.LicenseContext = LicenseContext.NonCommercial; 
+         xlWorkBook.Close(SaveChanges: false);
 
-            using (var package = new ExcelPackage(file, excelPwd))
-            {
-                var workbook = package.Workbook;
-                var worksheet = workbook.Worksheets[0]; // Assuming you want the first sheet
+         return "";
+     }
+     catch (Exception ex)
+     {
+         if (xlApp != null && xlWorkBook != null)
+         {
+             xlWorkBook.Close(SaveChanges: false);
+         }
+         return ex.Message;
+     }
+     finally
+     {
+         if (xlWorkBook != null)
+         {
+             System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlWorkBook);
+             xlWorkBook = null;
+         }
+         if (xlApp != null)
+         {
+             Workbooks wbs = xlApp.Workbooks;
+             wbs.Close();
+             System.Runtime.InteropServices.Marshal.FinalReleaseComObject(wbs);
+             wbs = null;
 
-                if (templatename == "Public Finance")
-                {
-                    worksheet.Cells["D6"].Value = id;
-                    worksheet.Cells["D4"].Value = name;
-                    worksheet.Cells["D13"].Value = GICS_sector;
-                    worksheet.Cells["D15"].Value = GICS_industry_group;
+             xlApp.Quit();
+             System.Runtime.InteropServices.Marshal.FinalReleaseComObject(xlApp);
+             xlApp = null;
+         }
 
-                    if (id != 0)
-                    {
-                        worksheet.Cells["D11"].Value = DateTime.Now;
-                        worksheet.Cells["D9"].Value = userID;
-                    }
-                }
-                else
-                {
-                    foreach (var nameItem in workbook.Names)
-                    {
-                        wbNames.Add(nameItem.Name);
-                    }
+         Thread.Sleep(200);
+         GC.Collect();
+         GC.WaitForPendingFinalizers();
 
-                    if (wbNames.Contains("EntityID"))
-                    {
-                        workbook.Names["EntityID"].Value = id;
-                    }
-
-                    if (wbNames.Contains("EntityName"))
-                    {
-                        workbook.Names["EntityName"].Value = name;
-                    }
-
-                    if (wbNames.Contains("GICSSector") && !string.IsNullOrEmpty(GICS_sector))
-                    {
-                        workbook.Names["GICSSector"].Value = GICS_sector;
-                    }
-
-                    if (wbNames.Contains("GICSIndustryGroup") && !string.IsNullOrEmpty(GICS_industry_group))
-                    {
-                        workbook.Names["GICSIndustryGroup"].Value = GICS_industry_group;
-                    }
-
-                    if (wbNames.Contains("BarclaysName") && !string.IsNullOrEmpty(lehmans_sector))
-                    {
-                        workbook.Names["BarclaysName"].Value = lehmans_sector;
-                    }
-
-                    if (id != 0)
-                    {
-                        if (wbNames.Contains("DateOfAnalysis"))
-                        {
-                            workbook.Names["DateOfAnalysis"].Value = DateTime.Now;
-                        }
-
-                        if (wbNames.Contains("DateofAnalysis"))
-                        {
-                            workbook.Names["DateofAnalysis"].Value = DateTime.Now;
-                        }
-
-                        if (wbNames.Contains("Analyst"))
-                        {
-                            workbook.Names["Analyst"].Value = userID;
-                        }
-
-                        if (wbNames.Contains("Ccy"))
-                        {
-                            workbook.Names["Ccy"].Value = userID;
-                        }
-
-                        if (wbNames.Contains("AnalystName"))
-                        {
-                            workbook.Names["AnalystName"].Value = userID;
-                        }
-                    }
-                }
-
-                // Save the changes
-                package.Save();
-            }
-        }
-
-        return "";
-    }
-    catch (Exception ex)
-    {
-        return ex.Message;
-    }
-}
+         try
+         {
+             Process aProcess = Process.GetProcessById(myExcelProcessId ?? 0);
+             strProcessName = aProcess.ProcessName;
+             if (aProcess != null && strProcessName.ToUpper() == "EXCEL")
+             {
+                 aProcess.Kill();
+             }
+         }
+         catch (Exception ex)
+         {
+         }
+     }
+ }
