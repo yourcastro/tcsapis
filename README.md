@@ -44,3 +44,7 @@ https://sunlifefinancial.sharepoint.com/sites/Credit-Risk-POC/_api/web//GetFileB
 
 Cannot find resource for the request SP.RequestContext.current/web/GetFileByServerRelativeUrl('/sites/Credit-Risk-POC/CreditRiskDocuments/PD_Test.xlsx')/versions(24)
 
+
+GET https://sunlifefinancial.sharepoint.com/sites/Credit-Risk-POC/_api/web/GetFileByServerRelativeUrl('/CreditRiskDocuments/PD_Test.xlsx')/versions(24)/openbinarystream
+
+
