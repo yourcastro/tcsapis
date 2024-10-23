@@ -1,28 +1,39 @@
- The exception handler configured on ExceptionHandlerOptions produced a 404 status response. This InvalidOperationException containing the original exception was thrown since this is often due to a misconfigured ExceptionHandlingPath. If the exception handler is expected to return 404 status responses then set AllowStatusCode404Response to true.
- ---> System.IO.FileNotFoundException: Could not load file or assembly 'office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c'. The system cannot find the file specified.
-File name: 'office, Version=15.0.0.0, Culture=neutral, PublicKeyToken=71e9bce111e9429c'
+using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Threading.Tasks;
 
-
-
-warning NU1701: Package 'Microsoft.Office.Interop.Excel 15.0.4420.1017' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.
-
-
-
-Application excelApp = new Application();
-Workbook workbook = excelApp.Workbooks.Open(tempFilePath);
-
-
-// Set the EPPlus license context (required by EPPlus 5+)
-    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;  // Change to appropriate license if using commercially
-
-    // Load the workbook from the file
-    using (var package = new ExcelPackage(new FileInfo(tempFilePath)))
+class Program
+{
+    static async Task Main(string[] args)
     {
-        // Access the first worksheet (for example)
-        var workbook = package.Workbook;
-        var worksheet = workbook.Worksheets[0];  // Access the first worksheet
+        var siteName = "your-site-name";
+        var listName = "your-list-name";
+        var itemId = "your-item-id"; // ID of the item
+        var versionId = "your-version-id"; // ID of the version you want
 
-        // You can now work with the worksheet
-        var cellValue = worksheet.Cells[1, 1].Text;  // Get value from cell A1
-        // Continue with your logic
+        var accessToken = "your-access-token"; // Ensure you have a valid access token
+
+        using (var client = new HttpClient())
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            // Retrieve specific version
+            var url = $"https://your-sharepoint-site-url/sites/{siteName}/_api/web/lists/getbytitle('{listName}')/items({itemId})/versions({versionId})/$value";
+
+            var response = await client.GetAsync(url);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsByteArrayAsync();
+                System.IO.File.WriteAllBytes("YourFileName.xlsx", content);
+                Console.WriteLine("File downloaded successfully.");
+            }
+            else
+            {
+                Console.WriteLine($"Error: {response.StatusCode}");
+            }
+        }
     }
+}
