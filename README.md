@@ -1,10 +1,30 @@
- // Step 2: Write the file to a temporary location
- string tempFilePath = Path.Combine(Path.GetTempPath(), "tempDownloadedFile.xlsx");
- File.WriteAllBytes(tempFilePath, responseSource?.RawBytes ?? Array.Empty<byte>());
+using OfficeOpenXml;
+using System.IO;
 
- // Step 3: Open the Excel file using OfficeOpenXml - Change to appropriate license if using commercially
- ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+// Step 1: Assume `responseSource.RawBytes` contains the raw Excel file bytes
+byte[] excelFileBytes = responseSource?.RawBytes ?? Array.Empty<byte>();
 
- // Load the workbook from the file
- FileInfo fileInfo = new FileInfo(tempFilePath);
- var package = new ExcelPackage(fileInfo);
+// Step 2: Use MemoryStream to avoid saving to a temporary location
+using (MemoryStream memoryStream = new MemoryStream(excelFileBytes))
+{
+    // Step 3: Set the LicenseContext for non-commercial use
+    ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+    // Step 4: Load the Excel package from the memory stream
+    using (ExcelPackage package = new ExcelPackage(memoryStream))
+    {
+        // Now you have the ExcelPackage object ready to use
+        // You can access the workbook, worksheets, and manipulate the data
+        var workbook = package.Workbook;
+
+        // Example: Access the first worksheet
+        var worksheet = workbook.Worksheets[0];
+
+        // Do whatever you need with the Excel data
+        // For example, read data from the first cell in the first worksheet
+        string firstCellValue = worksheet.Cells[1, 1].Text;
+
+        // Return the package, or perform operations on it
+        return package; // Or work with the data here
+    }
+}
